@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
@@ -16,7 +15,6 @@ class Colocation extends Model
         'status',
         'cancelled_at',
         'invite_token',
-        'category_id',
     ];
 
     protected function casts(): array
@@ -35,11 +33,6 @@ class Colocation extends Model
                 $colocation->invite_token = Str::random(32);
             }
         });
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
     }
 
     public function expenses(): HasMany

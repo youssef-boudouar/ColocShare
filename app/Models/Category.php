@@ -9,11 +9,6 @@ class Category extends Model
 {
     protected $fillable = ['name'];
 
-    public function colocations(): HasMany
-    {
-        return $this->hasMany(Colocation::class);
-    }
-
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);

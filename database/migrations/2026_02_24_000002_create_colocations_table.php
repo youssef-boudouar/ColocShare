@@ -15,7 +15,6 @@ return new class extends Migration
             $table->enum('status', ['active', 'cancelled'])->default('active');
             $table->datetime('cancelled_at')->nullable();
             $table->string('invite_token', 32)->unique();
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
