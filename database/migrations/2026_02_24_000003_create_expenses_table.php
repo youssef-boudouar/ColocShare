@@ -15,7 +15,7 @@ return new class extends Migration
             $table->date('date');
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('colocation_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
         });
     }
