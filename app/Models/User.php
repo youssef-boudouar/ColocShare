@@ -37,9 +37,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function payments(): HasMany
+    public function settlements(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Settlement::class);
     }
 
     public function expenses(): HasMany

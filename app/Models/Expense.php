@@ -40,8 +40,8 @@ class Expense extends Model
         return $this->belongsTo(Category::class)->withDefault();
     }
 
-    public function payments(): HasMany
+    public function settlements(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Settlement::class);
     }
 }

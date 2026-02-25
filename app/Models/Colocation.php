@@ -35,6 +35,11 @@ class Colocation extends Model
         });
     }
 
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
+
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
