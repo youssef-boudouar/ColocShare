@@ -46,7 +46,7 @@
                 règlement(s) au total
             </p>
             <p class="text-sm font-semibold text-emerald-600">
-                {{ number_format($settlements->sum('amount'), 2, ',', ' ') }} € remboursés
+                {{ number_format($settlements->sum('amount'), 2, ',', ' ') }} DH remboursés
             </p>
         </div>
 
@@ -79,7 +79,7 @@
                         </td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             <span class="text-sm font-semibold text-emerald-600">
-                                {{ number_format($settlement->amount, 2, ',', ' ') }} €
+                                {{ number_format($settlement->amount, 2, ',', ' ') }} DH
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
@@ -111,7 +111,7 @@
                     <option value="">Sélectionnez une dépense…</option>
                     @foreach($expenses ?? [] as $expense)
                     <option value="{{ $expense->id }}">
-                        {{ $expense->title }} — {{ number_format($expense->amount, 2, ',', ' ') }} €
+                        {{ $expense->title }} — {{ number_format($expense->amount, 2, ',', ' ') }} DH
                     </option>
                     @endforeach
                 </select>
@@ -122,7 +122,7 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant (€) <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant (DH) <span class="text-red-500">*</span></label>
                     <input type="number" name="amount" value="{{ old('amount') }}" required step="0.01" min="0.01"
                            class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                            placeholder="0,00">

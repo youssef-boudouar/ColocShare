@@ -40,7 +40,7 @@
             </div>
             <div class="flex items-baseline gap-1 mb-1">
                 <span class="text-2xl font-bold {{ $balance >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
-                    {{ $balance >= 0 ? '+' : '' }}{{ number_format($balance, 2, ',', ' ') }} €
+                    {{ $balance >= 0 ? '+' : '' }}{{ number_format($balance, 2, ',', ' ') }} DH
                 </span>
             </div>
             @if($balance > 0)
@@ -81,7 +81,7 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                     </svg>
-                    <span class="text-sm font-bold text-emerald-600">{{ number_format($debt['amount'], 2, ',', ' ') }} €</span>
+                    <span class="text-sm font-bold text-emerald-600">{{ number_format($debt['amount'], 2, ',', ' ') }} DH</span>
                     <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                     </svg>

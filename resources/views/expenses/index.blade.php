@@ -24,13 +24,13 @@
         <div class="bg-white border border-gray-200 rounded-xl p-4">
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Total ce mois</p>
             <p class="text-xl font-bold text-gray-900">
-                {{ number_format($expenses->where('date', '>=', now()->startOfMonth())->sum('amount'), 2, ',', ' ') }} €
+                {{ number_format($expenses->where('date', '>=', now()->startOfMonth())->sum('amount'), 2, ',', ' ') }} DH
             </p>
         </div>
         <div class="bg-white border border-gray-200 rounded-xl p-4">
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Total général</p>
             <p class="text-xl font-bold text-emerald-600">
-                {{ number_format($expenses->sum('amount'), 2, ',', ' ') }} €
+                {{ number_format($expenses->sum('amount'), 2, ',', ' ') }} DH
             </p>
         </div>
         <div class="bg-white border border-gray-200 rounded-xl p-4">
@@ -99,7 +99,7 @@
                         </td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             <span class="text-sm font-semibold text-emerald-600">
-                                {{ number_format($expense->amount, 2, ',', ' ') }} €
+                                {{ number_format($expense->amount, 2, ',', ' ') }} DH
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right">
@@ -142,7 +142,7 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant (€) <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant (DH) <span class="text-red-500">*</span></label>
                     <input type="number" name="amount" value="{{ old('amount') }}" required step="0.01" min="0.01"
                            class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                            placeholder="0,00">
