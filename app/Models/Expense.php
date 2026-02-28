@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Expense extends Model
 {
@@ -38,10 +37,5 @@ class Expense extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class)->withDefault();
-    }
-
-    public function settlements(): HasMany
-    {
-        return $this->hasMany(Settlement::class);
     }
 }

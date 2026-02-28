@@ -53,7 +53,23 @@ class ColocationController extends Controller
     }
     public function show(Colocation $colocation)
     {
-        return view('colocations.show', compact('colocation'));
+        $members = $colocation->users()->wherePivotNull('left_at')->get();
+        $expenses = $colocation->expenses;
+        $categories = $colocation->categories;
+        $total = $expenses->sum('amount');
+        $fairShare = $members->count() > 0 ? round($total / $members->count(), 2) : 0;
+
+        $balances = [];
+        foreach ($members as $member) {
+            $paid = $expenses->where('user_id', $member->id)->sum('amount');
+            $balances[] = [
+                'user' => $member,
+                'paid' => round($paid, 2),
+                'balance' => round($paid - $fairShare, 2),
+            ];
+        }
+
+        return view('colocations.show', compact('colocation', 'members', 'expenses', 'categories', 'total', 'fairShare', 'balances'));
     }
     public function edit(Colocation $colocation)
     {

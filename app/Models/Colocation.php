@@ -45,6 +45,11 @@ class Colocation extends Model
         return $this->hasMany(Expense::class);
     }
 
+    public function settlements(): HasMany
+    {
+        return $this->hasMany(Settlement::class);
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'memberships')

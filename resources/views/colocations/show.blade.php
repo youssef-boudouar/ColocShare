@@ -2,7 +2,7 @@
     <x-slot name="title">{{ $colocation->name }} — ColocShare</x-slot>
 
     @php
-        $pivot = $colocation->users->firstWhere('id', Auth::id())?->pivot;
+        $pivot = $members->firstWhere('id', Auth::id())?->pivot;
         $isOwner = $pivot && $pivot->role === 'owner';
     @endphp
 
@@ -119,7 +119,7 @@
 
             {{-- ===== MEMBRES ===== --}}
             <div class="tab-panel panel-membres">
-                @forelse($colocation->users as $member)
+                @forelse($members as $member)
                 <div class="flex items-center justify-between py-3 px-3 rounded-xl hover:bg-gray-50 transition-colors stagger-item {{ !$loop->last ? 'border-b border-gray-50' : '' }}">
                     <div class="flex items-center gap-3">
                         <x-avatar :name="$member->name" size="sm"/>
@@ -148,9 +148,9 @@
             <div class="tab-panel panel-depenses">
                 <div class="flex items-center justify-between mb-5">
                     <div>
-                        <span class="text-sm font-semibold text-gray-900">{{ $colocation->expenses->count() }} dépense(s)</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ $expenses->count() }} dépense(s)</span>
                         <span class="text-sm text-gray-400 mx-1.5">·</span>
-                        <span class="text-sm font-bold text-emerald-600">{{ number_format($colocation->expenses->sum('amount'), 2, ',', ' ') }} DH</span>
+                        <span class="text-sm font-bold text-emerald-600">{{ number_format($total, 2, ',', ' ') }} DH</span>
                     </div>
                     <a href="#modal-add-expense"
                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-colors">
@@ -161,7 +161,7 @@
                     </a>
                 </div>
 
-                @if($colocation->expenses->isEmpty())
+                @if($expenses->isEmpty())
                 <div class="py-14 text-center">
                     <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                         <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -184,7 +184,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($colocation->expenses->sortByDesc('date') as $expense)
+                            @foreach($expenses->sortByDesc('date') as $expense)
                             <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors stagger-item">
                                 <td class="px-6 py-3.5 text-sm font-semibold text-gray-900">{{ $expense->title }}</td>
                                 <td class="px-6 py-3.5 text-sm text-gray-500">
@@ -215,17 +215,7 @@
 
             {{-- ===== SOLDES ===== --}}
             <div class="tab-panel panel-soldes">
-                @php
-                    $memberCount      = $colocation->users->count();
-                    $totalExpenses    = $colocation->expenses->sum('amount');
-                    $sharePerMember   = $memberCount > 0 ? $totalExpenses / $memberCount : 0;
-                    $memberBalances   = $colocation->users->map(function ($u) use ($colocation, $sharePerMember) {
-                        $paid = $colocation->expenses->where('user_id', $u->id)->sum('amount');
-                        return ['member' => $u, 'paid' => $paid, 'balance' => round($paid - $sharePerMember, 2)];
-                    });
-                @endphp
-
-                @if($colocation->expenses->isEmpty())
+                @if($expenses->isEmpty())
                 <div class="py-14 text-center">
                     <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                         <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -236,42 +226,63 @@
                     <p class="text-xs text-gray-400">Enregistrez des dépenses pour voir les soldes.</p>
                 </div>
                 @else
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                    @foreach($memberBalances as $b)
-                    @php $balance = $b['balance']; $member = $b['member']; @endphp
-                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 stagger-item">
-                        <x-avatar :name="$member->name" size="md"/>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-gray-900 truncate">
-                                {{ $member->name }}
-                                @if($member->id === Auth::id())<span class="text-xs font-normal text-gray-400">(moi)</span>@endif
-                            </p>
-                            <p class="text-xs text-gray-400 mt-0.5">
-                                Payé {{ number_format($b['paid'], 2, ',', ' ') }} DH
-                                · part {{ number_format($sharePerMember, 2, ',', ' ') }} DH
-                            </p>
-                        </div>
-                        <div class="text-right flex-shrink-0">
-                            <p class="text-base font-bold {{ $balance >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
-                                {{ $balance >= 0 ? '+' : '' }}{{ number_format($balance, 2, ',', ' ') }} DH
-                            </p>
-                            <p class="text-xs {{ $balance > 0 ? 'text-emerald-500' : ($balance < 0 ? 'text-red-400' : 'text-gray-400') }}">
-                                {{ $balance > 0 ? 'à recevoir' : ($balance < 0 ? 'à payer' : 'équilibré') }}
-                            </p>
-                        </div>
+                {{-- Summary --}}
+                <div class="flex items-center gap-4 mb-5 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div class="flex-1 text-center">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</p>
+                        <p class="text-lg font-bold text-gray-900 mt-0.5">{{ number_format($total, 2, ',', ' ') }} DH</p>
                     </div>
-                    @endforeach
+                    <div class="w-px h-10 bg-gray-200"></div>
+                    <div class="flex-1 text-center">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Part par personne</p>
+                        <p class="text-lg font-bold text-emerald-600 mt-0.5">{{ number_format($fairShare, 2, ',', ' ') }} DH</p>
+                    </div>
                 </div>
-                <p class="text-xs text-center text-gray-400">
-                    Répartition égale · {{ number_format($sharePerMember, 2, ',', ' ') }} DH / membre · total {{ number_format($totalExpenses, 2, ',', ' ') }} DH
-                </p>
+
+                {{-- Balance table --}}
+                <div class="overflow-x-auto -mx-6">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-100 bg-gray-50/50">
+                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Membre</th>
+                                <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Payé</th>
+                                <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Solde</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($balances as $b)
+                            <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors stagger-item">
+                                <td class="px-6 py-3.5">
+                                    <div class="flex items-center gap-2">
+                                        <x-avatar :name="$b['user']->name" size="xs"/>
+                                        <span class="text-sm font-semibold text-gray-900">
+                                            {{ $b['user']->name }}
+                                            @if($b['user']->id === Auth::id())
+                                            <span class="text-xs font-normal text-gray-400">(moi)</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-3.5 text-right text-sm text-gray-600">
+                                    {{ number_format($b['paid'], 2, ',', ' ') }} DH
+                                </td>
+                                <td class="px-6 py-3.5 text-right">
+                                    <span class="text-sm font-bold {{ $b['balance'] > 0 ? 'text-emerald-600' : ($b['balance'] < 0 ? 'text-red-500' : 'text-gray-400') }}">
+                                        {{ $b['balance'] > 0 ? '+' : '' }}{{ number_format($b['balance'], 2, ',', ' ') }} DH
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
                 @endif
             </div>
 
             {{-- ===== RÈGLEMENTS ===== --}}
             <div class="tab-panel panel-reglements">
                 @php
-                    $settlements = $colocation->expenses
+                    $settlements = $expenses
                         ->flatMap(fn ($e) => $e->relationLoaded('settlements') ? $e->settlements : collect())
                         ->sortByDesc('paid_at');
                 @endphp
@@ -347,7 +358,7 @@
                     </button>
                 </form>
 
-                @if($colocation->categories->isEmpty())
+                @if($categories->isEmpty())
                 <div class="py-10 text-center">
                     <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                         <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -358,7 +369,7 @@
                 </div>
                 @else
                 <div class="space-y-2">
-                    @foreach($colocation->categories as $category)
+                    @foreach($categories as $category)
                     <div class="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors stagger-item">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
@@ -426,7 +437,7 @@
                     <select name="category_id"
                             class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all bg-white">
                         <option value="">Sans catégorie</option>
-                        @foreach($colocation->categories as $cat)
+                        @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
                     </select>
@@ -462,7 +473,7 @@
                     <select name="expense_id" required
                             class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all bg-white">
                         <option value="">— Choisir une dépense —</option>
-                        @foreach($colocation->expenses as $exp)
+                        @foreach($expenses as $exp)
                         <option value="{{ $exp->id }}">{{ $exp->title }} ({{ number_format($exp->amount, 2, ',', ' ') }} DH)</option>
                         @endforeach
                     </select>

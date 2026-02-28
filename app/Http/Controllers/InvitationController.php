@@ -49,3 +49,5 @@ class InvitationController extends Controller
         return redirect()->route('colocations.show', $colocation)->with('success', 'Vous avez rejoint la colocation !');
     }
 }
+
+
