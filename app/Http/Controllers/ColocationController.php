@@ -47,10 +47,18 @@ class ColocationController extends Controller
     }
     public function edit(Colocation $colocation)
     {
+        if ($colocation->users()->wherePivot('role', 'owner')->where('users.id', auth()->id())->doesntExist()) {
+            abort(403);
+        }
+
         return view('colocations.edit', compact('colocation'));
     }
     public function update(Request $request, Colocation $colocation)
     {
+        if ($colocation->users()->wherePivot('role', 'owner')->where('users.id', auth()->id())->doesntExist()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -64,6 +72,10 @@ class ColocationController extends Controller
 
     public function cancel(Colocation $colocation)
     {
+        if ($colocation->users()->wherePivot('role', 'owner')->where('users.id', auth()->id())->doesntExist()) {
+            abort(403);
+        }
+
         $colocation->update([
             'status' => 'cancelled',
             'cancelled_at' => now(),
