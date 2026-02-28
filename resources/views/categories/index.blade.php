@@ -53,7 +53,7 @@
                     </svg>
                 </div>
                 @if($isOwner ?? false)
-                <form method="POST" action="#"
+                <form method="POST" action="{{ route('categories.destroy', $category) }}"
                       onsubmit="return confirm('Supprimer la catégorie « {{ $category->name }} » ?')">
                     @csrf
                     @method('DELETE')
@@ -88,7 +88,7 @@
     {{-- Add category modal (owner only) --}}
     @if($isOwner ?? false)
     <x-modal id="add-category-modal" title="Nouvelle catégorie">
-        <form method="POST" action="#" class="space-y-4">
+        <form method="POST" action="{{ route('categories.store', $colocation) }}" class="space-y-4">
             @csrf
 
             <div>

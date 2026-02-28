@@ -10,7 +10,7 @@
         <div class="bg-white border border-gray-200 rounded-2xl p-6">
             <form method="POST" action="{{ route('colocations.update', $colocation) }}" class="space-y-5">
                 @csrf
-                @method('PATCH')
+                @method('PUT')
 
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Nom de la colocation</label>
