@@ -7,6 +7,20 @@ use Illuminate\Http\Request;
 
 class ColocationController extends Controller
 {
+    public function index()
+    {
+        $user = auth()->user();
+
+        $active = $user->colocations()
+            ->where('status', 'active')
+            ->first();
+
+        $past = $user->colocations()
+            ->where('status', 'cancelled')
+            ->get();
+
+        return view('colocations.index', compact('active', 'past'));
+    }
 
     public function create()
     {

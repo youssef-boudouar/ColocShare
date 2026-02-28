@@ -31,12 +31,9 @@
                 <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                     Tableau de bord
                 </x-nav-link>
-                <x-nav-link href="{{ $activeColocation ? route('colocations.show', $activeColocation) : route('colocations.create') }}" :active="request()->routeIs('colocations.*')">
-                    Ma Colocation
+                <x-nav-link href="{{ route('colocations.index') }}" :active="request()->routeIs('colocations.*')">
+                    Colocations
                 </x-nav-link>
-                <x-nav-link href="#" :active="false">Dépenses</x-nav-link>
-                <x-nav-link href="#" :active="false">Soldes</x-nav-link>
-                <x-nav-link href="#" :active="false">Règlements</x-nav-link>
                 @if(auth()->user()->is_admin)
                 <x-nav-link href="#" :active="request()->routeIs('admin.*')" class="text-amber-600">
                     Administration
@@ -96,10 +93,7 @@
     <div class="hidden peer-checked:block md:!hidden border-t border-gray-100">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 space-y-0.5">
             <a href="{{ route('dashboard') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('dashboard') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">Tableau de bord</a>
-            <a href="{{ $activeColocation ? route('colocations.show', $activeColocation) : route('colocations.create') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('colocations.*') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">Ma Colocation</a>
-            <a href="#" class="block px-3 py-2.5 text-sm font-medium rounded-xl text-gray-600 hover:bg-gray-50">Dépenses</a>
-            <a href="#" class="block px-3 py-2.5 text-sm font-medium rounded-xl text-gray-600 hover:bg-gray-50">Soldes</a>
-            <a href="#" class="block px-3 py-2.5 text-sm font-medium rounded-xl text-gray-600 hover:bg-gray-50">Règlements</a>
+            <a href="{{ route('colocations.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('colocations.*') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">Colocations</a>
             @if(auth()->user()->is_admin)
             <a href="#" class="block px-3 py-2.5 text-sm font-medium rounded-xl text-amber-600 hover:bg-amber-50">Administration</a>
             @endif
