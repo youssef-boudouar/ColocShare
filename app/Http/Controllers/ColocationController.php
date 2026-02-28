@@ -24,10 +24,20 @@ class ColocationController extends Controller
 
     public function create()
     {
+        $hasActive = auth()->user()->colocations()->where('status', 'active')->wherePivotNull('left_at')->exists();
+        if ($hasActive) {
+            return redirect()->route('dashboard')->with('error', 'Vous avez déjà une colocation active.');
+        }
+
         return view('colocations.create');
     }
     public function store(Request $request)
     {
+        $hasActive = auth()->user()->colocations()->where('status', 'active')->wherePivotNull('left_at')->exists();
+        if ($hasActive) {
+            return redirect()->route('dashboard')->with('error', 'Vous avez déjà une colocation active.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
