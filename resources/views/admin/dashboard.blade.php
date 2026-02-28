@@ -1,10 +1,10 @@
 <x-app-layout>
-    <x-slot name="title">Administration — ClocShare</x-slot>
+    <x-slot name="title">Administration — ColocShare</x-slot>
 
     {{-- Header --}}
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-900">Administration</h1>
-        <p class="text-gray-500 text-sm mt-1">Vue d'ensemble de la plateforme ClocShare.</p>
+        <p class="text-gray-500 text-sm mt-1">Vue d'ensemble de la plateforme ColocShare.</p>
     </div>
 
     {{-- Stats --}}

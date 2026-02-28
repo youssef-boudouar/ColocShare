@@ -19,7 +19,7 @@ class InvitationMail extends Mailable
     public function __construct(Colocation $colocation)
     {
         $this->colocation = $colocation;
-        $this->url = route('invitations.accept', $colocation);
+        $this->url = url('/join/' . $colocation->invite_token);
     }
 
     public function envelope(): Envelope

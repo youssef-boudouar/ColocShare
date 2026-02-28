@@ -3,36 +3,33 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'ClocShare' }}</title>
+    <title>{{ $title ?? 'ColocShare' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-gray-900 antialiased">
 
 {{-- ===== NAVBAR ===== --}}
-<header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-100">
 
-    {{-- Mobile menu checkbox (must be first child of header to be a sibling of the mobile panel) --}}
+    {{-- Mobile menu checkbox --}}
     <input type="checkbox" id="menu-toggle" class="sr-only peer">
 
-    {{-- Navbar row --}}
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="flex items-center justify-between h-16 gap-6">
 
             {{-- Logo --}}
-            <a href="{{ route('dashboard') }}" class="text-lg font-bold text-gray-900 tracking-tight flex-shrink-0 select-none">
-                ClocShare
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 flex-shrink-0 select-none group">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 group-hover:scale-110 transition-transform"></span>
+                <span class="text-lg font-bold text-emerald-600 tracking-tight">ColocShare</span>
             </a>
 
-            {{-- Center nav (desktop only) --}}
-            @php
-                $activeColocation = auth()->user()?->colocations()->where('status','active')->first();
-            @endphp
-            <nav class="hidden md:flex items-center gap-7 flex-1 justify-center">
+            {{-- Center nav (desktop) --}}
+            <nav class="hidden md:flex items-center gap-8 flex-1 justify-center">
                 <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                    Tableau de bord
+                    Accueil
                 </x-nav-link>
                 <x-nav-link href="{{ route('colocations.index') }}" :active="request()->routeIs('colocations.*')">
-                    Colocations
+                    Mes Colocations
                 </x-nav-link>
                 @if(auth()->user()->is_admin)
                 <x-nav-link href="#" :active="request()->routeIs('admin.*')" class="text-amber-600">
@@ -44,10 +41,10 @@
             {{-- Right side --}}
             <div class="flex items-center gap-2 flex-shrink-0">
 
-                {{-- User dropdown (<details> CSS-only, desktop) --}}
+                {{-- User dropdown (CSS-only <details>) --}}
                 <details class="relative hidden md:block">
-                    <summary class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer select-none outline-none">
-                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-sm font-semibold flex-shrink-0">
+                    <summary class="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer select-none outline-none">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                             {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                         </div>
                         <span class="text-sm font-medium text-gray-700 max-w-[120px] truncate">{{ Auth::user()->name ?? '' }}</span>
@@ -55,32 +52,32 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </summary>
-                    <div class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5 z-50">
-                        <div class="px-4 py-2.5 border-b border-gray-100 mb-1">
-                            <p class="text-xs font-semibold text-gray-900 truncate">{{ Auth::user()->name ?? '' }}</p>
+                    <div class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl py-1.5 z-50">
+                        <div class="px-4 py-3 border-b border-gray-100 mb-1">
+                            <p class="text-sm font-semibold text-gray-900 truncate">{{ Auth::user()->name ?? '' }}</p>
                             <p class="text-xs text-gray-400 truncate mt-0.5">{{ Auth::user()->email ?? '' }}</p>
                         </div>
-                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                             <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
-                            Mon profil
+                            Profil
                         </a>
                         <div class="h-px bg-gray-100 my-1 mx-3"></div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                            <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                 </svg>
-                                Se déconnecter
+                                Déconnexion
                             </button>
                         </form>
                     </div>
                 </details>
 
-                {{-- Hamburger label (mobile) --}}
-                <label for="menu-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                {{-- Hamburger (mobile) --}}
+                <label for="menu-toggle" class="md:hidden p-2 rounded-xl hover:bg-gray-100 cursor-pointer transition-colors">
                     <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -89,19 +86,19 @@
         </div>
     </div>
 
-    {{-- Mobile menu panel (peer-checked:block when checkbox checked) --}}
-    <div class="hidden peer-checked:block md:!hidden border-t border-gray-100">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 space-y-0.5">
-            <a href="{{ route('dashboard') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('dashboard') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">Tableau de bord</a>
-            <a href="{{ route('colocations.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('colocations.*') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">Colocations</a>
+    {{-- Mobile menu panel --}}
+    <div class="hidden peer-checked:block md:!hidden border-t border-gray-100 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 space-y-0.5">
+            <a href="{{ route('dashboard') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('dashboard') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">Accueil</a>
+            <a href="{{ route('colocations.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl {{ request()->routeIs('colocations.*') ? 'bg-emerald-50 text-emerald-700' : 'text-gray-600 hover:bg-gray-50' }}">Mes Colocations</a>
             @if(auth()->user()->is_admin)
             <a href="#" class="block px-3 py-2.5 text-sm font-medium rounded-xl text-amber-600 hover:bg-amber-50">Administration</a>
             @endif
             <div class="h-px bg-gray-100 my-2"></div>
-            <a href="{{ route('profile.edit') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl text-gray-600 hover:bg-gray-50">Mon profil</a>
+            <a href="{{ route('profile.edit') }}" class="block px-3 py-2.5 text-sm font-medium rounded-xl text-gray-600 hover:bg-gray-50">Profil</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="w-full text-left px-3 py-2.5 text-sm font-medium rounded-xl text-red-600 hover:bg-red-50">Se déconnecter</button>
+                <button type="submit" class="w-full text-left px-3 py-2.5 text-sm font-medium rounded-xl text-red-600 hover:bg-red-50">Déconnexion</button>
             </form>
         </div>
     </div>
@@ -131,7 +128,7 @@
 @endif
 
 {{-- Main content --}}
-<main class="max-w-5xl mx-auto px-4 sm:px-6 py-10 animate-fade-in-up">
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 animate-fade-in-up">
     {{ $slot }}
 </main>
 

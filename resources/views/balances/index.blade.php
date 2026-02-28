@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Soldes — ClocShare</x-slot>
+    <x-slot name="title">Soldes — ColocShare</x-slot>
 
     {{-- Header --}}
     <div class="mb-8">

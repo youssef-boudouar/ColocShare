@@ -35,7 +35,7 @@ Route::middleware(['auth', EnsureUserNotBanned::class])->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     Route::post('/colocations/{colocation}/invite', [InvitationController::class, 'send'])->name('invitations.send');
-    Route::get('/colocations/{colocation}/join', [InvitationController::class, 'accept'])->name('invitations.accept');
+    Route::get('/join/{token}', [InvitationController::class, 'accept'])->name('invitations.accept');
 });
 
 require __DIR__.'/auth.php';

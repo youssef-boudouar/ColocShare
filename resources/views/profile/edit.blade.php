@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Mon profil — ClocShare</x-slot>
+    <x-slot name="title">Mon profil — ColocShare</x-slot>
 
     <div class="max-w-lg mx-auto space-y-6">
         <div class="mb-2">

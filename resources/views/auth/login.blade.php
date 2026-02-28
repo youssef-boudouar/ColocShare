@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-8">
         <h2 class="text-2xl font-bold text-gray-900">Bon retour !</h2>
-        <p class="text-gray-500 text-sm mt-1">Connectez-vous à votre espace ClocShare</p>
+        <p class="text-gray-500 text-sm mt-1">Connectez-vous à votre espace ColocShare</p>
     </div>
 
     @if(session('status'))
@@ -44,13 +44,13 @@
             @endif
         </div>
 
-        <button type="submit" class="w-full flex items-center justify-center px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-colors mt-2">
+        <button type="submit" class="w-full flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold text-sm rounded-xl transition-all mt-2 shadow-sm">
             Se connecter
         </button>
     </form>
 
     <p class="mt-6 text-center text-sm text-gray-500">
-        Pas encore inscrit ?
-        <a href="{{ route('register') }}" class="text-emerald-600 font-semibold hover:text-emerald-700 ml-1">Créer un compte</a>
+        Pas encore de compte ?
+        <a href="{{ route('register') }}" class="text-emerald-600 font-semibold hover:text-emerald-700 ml-1">Inscrivez-vous</a>
     </p>
 </x-guest-layout>

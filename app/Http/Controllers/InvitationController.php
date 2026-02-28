@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\InvitationMail;
-use App\Models\Colocation;
 use App\Models\User;
+use App\Models\Colocation;
+use App\Mail\InvitationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -12,55 +12,35 @@ class InvitationController extends Controller
 {
     public function send(Request $request, Colocation $colocation)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
+        $request->validate(['email' => 'required|email']);
 
-        // Check if current user is the owner
-        if ($colocation->users()->wherePivot('role', 'owner')->where('users.id', auth()->id())->doesntExist()) {
-            abort(403);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'Aucun utilisateur trouvé avec cet email.');
         }
 
-        // Find user by email
-        $invitedUser = User::where('email', $request->email)->first();
-
-        if (!$invitedUser) {
-            return back()->with('error', 'Aucun utilisateur trouvé avec cet email.');
+        if ($colocation->users()->where('users.id', $user->id)->wherePivotNull('left_at')->exists()) {
+            return redirect()->back()->with('error', 'Cet utilisateur est déjà membre.');
         }
 
-        // Check if already a member of this colocation
-        if ($colocation->users()->where('users.id', $invitedUser->id)->exists()) {
-            return back()->with('error', 'Cet utilisateur est déjà membre.');
-        }
-
-        // Check if user already has an active colocation
-        $hasActive = $invitedUser->colocations()->where('status', 'active')->wherePivotNull('left_at')->exists();
-        if ($hasActive) {
-            return back()->with('error', 'Cet utilisateur a déjà une colocation active.');
-        }
-
-        // Send the invitation email
         Mail::to($request->email)->send(new InvitationMail($colocation));
 
-        return back()->with('success', 'Invitation envoyée !');
+        return redirect()->back()->with('success', 'Invitation envoyée !');
     }
 
-    public function accept(Colocation $colocation)
+    public function accept($token)
     {
-        $user = auth()->user();
+        $colocation = Colocation::where('invite_token', $token)->first();
 
-        // Check if user already has an active colocation
-        $hasActive = $user->colocations()->where('status', 'active')->wherePivotNull('left_at')->exists();
-        if ($hasActive) {
-            return redirect()->route('dashboard')->with('error', 'Vous avez déjà une colocation active.');
+        if (!$colocation) {
+            return redirect()->route('dashboard')->with('error', 'Lien invalide.');
         }
 
-        // Check if already a member
-        if ($colocation->users()->where('users.id', $user->id)->exists()) {
-            return redirect()->route('colocations.show', $colocation)->with('error', 'Vous êtes déjà membre de cette colocation.');
+        if ($colocation->users()->where('users.id', auth()->id())->wherePivotNull('left_at')->exists()) {
+            return redirect()->route('colocations.show', $colocation)->with('error', 'Vous êtes déjà membre.');
         }
 
-        // Add user to colocation
         $colocation->users()->attach(auth()->id(), [
             'role' => 'member',
             'joined_at' => now(),

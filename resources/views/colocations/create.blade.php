@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Créer une colocation — ClocShare</x-slot>
+    <x-slot name="title">Créer une colocation — ColocShare</x-slot>
 
     <div class="max-w-lg mx-auto">
         <div class="mb-8">

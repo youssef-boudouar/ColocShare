@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'ClocShare') }}</title>
+    <title>{{ config('app.name', 'ColocShare') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="antialiased bg-white">
@@ -16,7 +16,10 @@
          style="background: url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1920&q=80') center/cover no-repeat;">
         <div class="absolute inset-0 bg-gray-900/75"></div>
         <div class="relative z-10 w-full max-w-md mr-auto">
-            <a href="/" class="inline-block text-2xl font-bold text-white mb-12 tracking-tight">ClocShare</a>
+            <a href="/" class="inline-flex items-center gap-2 mb-12">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-2xl font-bold text-white tracking-tight">ColocShare</span>
+            </a>
             <h1 class="text-4xl font-bold text-white leading-tight mb-4">
                 Gérez vos dépenses<br>de colocation
                 <span class="text-emerald-400"> intelligemment</span>
@@ -43,8 +46,9 @@
     <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-white">
         <div class="w-full max-w-sm animate-fade-in-up">
             {{-- Mobile logo --}}
-            <div class="flex items-center justify-center mb-8 lg:hidden">
-                <a href="/" class="text-xl font-bold text-gray-900">ClocShare</a>
+            <div class="flex items-center justify-center gap-2 mb-8 lg:hidden">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <a href="/" class="text-xl font-bold text-emerald-600">ColocShare</a>
             </div>
             {{ $slot }}
         </div>

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Règlements — ClocShare</x-slot>
+    <x-slot name="title">Règlements — ColocShare</x-slot>
 
     {{-- Header --}}
     <div class="flex items-center justify-between mb-8">
