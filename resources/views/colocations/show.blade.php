@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">{{ $colocation->name }} — ClocShare</x-slot>
+    <x-slot name="title">{{ $colocation->name }} — ColocShare</x-slot>
 
     @php
         $pivot = $colocation->users->firstWhere('id', Auth::id())?->pivot;
@@ -51,22 +51,45 @@
 
         {{-- Invite bar (owner only) --}}
         @if($isOwner)
-        <div class="mt-4 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-            <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-            </svg>
-            <span class="text-sm text-gray-500 flex-shrink-0">Inviter par e-mail</span>
-            <form method="POST" action="#" class="flex flex-1 gap-2 max-w-sm">
-                @csrf
-                <input type="email" name="email"
-                       class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                       placeholder="email@exemple.fr">
-                <button type="submit"
-                        class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-lg transition-colors whitespace-nowrap">
-                    Envoyer
-                </button>
-            </form>
+        <div class="mt-4">
+            @if(session('success'))
+            <div class="mb-3 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl">
+                {{ session('success') }}
+            </div>
+            @endif
+            @if(session('error'))
+            <div class="mb-3 px-4 py-2.5 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+                {{ session('error') }}
+            </div>
+            @endif
+            <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                </svg>
+                <span class="text-sm text-gray-500 flex-shrink-0">Inviter par e-mail</span>
+                <form method="POST" action="{{ route('invitations.send', $colocation) }}" class="flex flex-1 gap-2 max-w-sm">
+                    @csrf
+                    <input type="email" name="email"
+                           class="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                           placeholder="email@exemple.fr">
+                    <button type="submit"
+                            class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-lg transition-colors whitespace-nowrap">
+                        Envoyer
+                    </button>
+                </form>
+            </div>
         </div>
+        @else
+            @if(session('success'))
+            <div class="mt-4 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl">
+                {{ session('success') }}
+            </div>
+            @endif
+            @if(session('error'))
+            <div class="mt-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">
+                {{ session('error') }}
+            </div>
+            @endif
         @endif
     </div>
 

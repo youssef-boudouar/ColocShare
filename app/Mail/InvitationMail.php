@@ -2,51 +2,40 @@
 
 namespace App\Mail;
 
+use App\Models\Colocation;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Symfony\Component\Mime\Address;
 
 class InvitationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    public Colocation $colocation;
+    public string $url;
+
+    public function __construct(Colocation $colocation)
     {
-        //
+        $this->colocation = $colocation;
+        $this->url = route('invitations.accept', $colocation);
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'ColocShare Invitation',
+            subject: 'Vous êtes invité à rejoindre une colocation',
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'invitation.mail',
+            view: 'emails.invitation',
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];

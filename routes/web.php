@@ -3,13 +3,14 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\EnsureUserNotBanned;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'));
 
-Route::get('/dashboard', [ColocationController::class, 'index'])
+Route::get('/dashboard', fn () => view('dashboard'))
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -32,6 +33,9 @@ Route::middleware(['auth', EnsureUserNotBanned::class])->group(function () {
 
     Route::post('/colocations/{colocation}/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    Route::post('/colocations/{colocation}/invite', [InvitationController::class, 'send'])->name('invitations.send');
+    Route::get('/colocations/{colocation}/join', [InvitationController::class, 'accept'])->name('invitations.accept');
 });
 
 require __DIR__.'/auth.php';
