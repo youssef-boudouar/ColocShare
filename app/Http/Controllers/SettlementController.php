@@ -11,6 +11,7 @@ class SettlementController extends Controller
     public function store(Request $request, Colocation $colocation)
     {
         $request->validate([
+            'payer_id' => 'required|exists:users,id',
             'receiver_id' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0.01',
         ]);
@@ -18,7 +19,7 @@ class SettlementController extends Controller
         Settlement::create([
             'amount' => $request->amount,
             'paid_at' => now(),
-            'payer_id' => auth()->id(),
+            'payer_id' => $request->payer_id,
             'receiver_id' => $request->receiver_id,
             'colocation_id' => $colocation->id,
         ]);

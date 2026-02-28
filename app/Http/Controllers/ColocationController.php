@@ -60,6 +60,8 @@ class ColocationController extends Controller
         $total = $expenses->sum('amount');
         $fairShare = $members->count() > 0 ? round($total / $members->count(), 2) : 0;
 
+        $settlements = Settlement::where('colocation_id', $colocation->id)->with(['payer', 'receiver'])->latest()->get();
+
         $balances = [];
         foreach ($members as $member) {
             $paid = $expenses->where('user_id', $member->id)->sum('amount');
@@ -70,7 +72,11 @@ class ColocationController extends Controller
             ];
         }
 
-        $settlements = Settlement::where('colocation_id', $colocation->id)->with(['payer', 'receiver'])->latest()->get();
+        foreach ($balances as &$b) {
+            $paidSettlements = $settlements->where('payer_id', $b['user']->id)->sum('amount');
+            $receivedSettlements = $settlements->where('receiver_id', $b['user']->id)->sum('amount');
+            $b['balance'] = round($b['balance'] + $paidSettlements - $receivedSettlements, 2);
+        }
 
         return view('colocations.show', compact('colocation', 'members', 'expenses', 'categories', 'total', 'fairShare', 'balances', 'settlements'));
     }

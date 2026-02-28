@@ -246,11 +246,15 @@
                             <tr class="border-b border-gray-100 bg-gray-50/50">
                                 <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Membre</th>
                                 <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Payé</th>
+                                <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Réglé</th>
                                 <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Solde</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($balances as $b)
+                            @php
+                                $settled = round($settlements->where('payer_id', $b['user']->id)->sum('amount') - $settlements->where('receiver_id', $b['user']->id)->sum('amount'), 2);
+                            @endphp
                             <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors stagger-item">
                                 <td class="px-6 py-3.5">
                                     <div class="flex items-center gap-2">
@@ -266,8 +270,11 @@
                                 <td class="px-6 py-3.5 text-right text-sm text-gray-600">
                                     {{ number_format($b['paid'], 2, ',', ' ') }} DH
                                 </td>
+                                <td class="px-6 py-3.5 text-right text-sm {{ $settled != 0 ? ($settled > 0 ? 'text-emerald-600' : 'text-red-500') : 'text-gray-400' }}">
+                                    {{ $settled > 0 ? '+' : '' }}{{ number_format($settled, 2, ',', ' ') }} DH
+                                </td>
                                 <td class="px-6 py-3.5 text-right">
-                                    <span class="text-sm font-bold {{ $b['balance'] > 0 ? 'text-emerald-600' : ($b['balance'] < 0 ? 'text-red-500' : 'text-gray-400') }}">
+                                    <span class="text-sm font-bold {{ $b['balance'] >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
                                         {{ $b['balance'] > 0 ? '+' : '' }}{{ number_format($b['balance'], 2, ',', ' ') }} DH
                                     </span>
                                 </td>
@@ -276,51 +283,60 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- Status: all balanced or debts --}}
+                @php
+                    $allBalanced = collect($balances)->every(fn ($b) => $b['balance'] == 0);
+                    $debtors = collect($balances)->filter(fn ($b) => $b['balance'] < 0);
+                    $creditor = collect($balances)->sortByDesc('balance')->first();
+                @endphp
+
+                @if($allBalanced)
+                <div class="mt-6 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl text-center">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <p class="text-base font-bold text-emerald-700">Tous les comptes sont équilibrés !</p>
+                    <p class="text-sm text-emerald-600 mt-1">Aucun remboursement nécessaire.</p>
+                </div>
+                @elseif($debtors->isNotEmpty() && $creditor && $creditor['balance'] > 0)
+                <div class="mt-6">
+                    <h3 class="text-sm font-bold text-gray-900 mb-3">Qui doit quoi ?</h3>
+                    <div class="space-y-2">
+                        @foreach($debtors as $debtor)
+                        <div class="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <x-avatar :name="$debtor['user']->name" size="xs"/>
+                                <span class="text-sm text-gray-900">
+                                    <span class="font-semibold">{{ $debtor['user']->name }}</span>
+                                    doit <span class="font-bold text-red-500">{{ number_format(abs($debtor['balance']), 2, ',', ' ') }} DH</span>
+                                </span>
+                            </div>
+                            <form method="POST" action="{{ route('settlements.store', $colocation) }}">
+                                @csrf
+                                <input type="hidden" name="payer_id" value="{{ $debtor['user']->id }}">
+                                <input type="hidden" name="receiver_id" value="{{ $creditor['user']->id }}">
+                                <input type="hidden" name="amount" value="{{ abs($debtor['balance']) }}">
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs rounded-lg transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Marquer payé
+                                </button>
+                            </form>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
                 @endif
             </div>
 
             {{-- ===== RÈGLEMENTS ===== --}}
             <div class="tab-panel panel-reglements">
-                {{-- Form: enregistrer un règlement --}}
-                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4">Enregistrer un règlement</h3>
-                    <form method="POST" action="{{ route('settlements.store', $colocation) }}" class="flex flex-wrap items-end gap-3">
-                        @csrf
-                        <div class="flex-1 min-w-[140px]">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1.5">De</label>
-                            <div class="block w-full rounded-xl border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500">
-                                {{ Auth::user()->name }}
-                            </div>
-                        </div>
-                        <div class="flex-1 min-w-[140px]">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1.5">À</label>
-                            <select name="receiver_id" required
-                                    class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all bg-white">
-                                <option value="">— Choisir —</option>
-                                @foreach($members as $member)
-                                    @if($member->id !== Auth::id())
-                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="w-32">
-                            <label class="block text-xs font-semibold text-gray-600 mb-1.5">Montant (DH)</label>
-                            <input type="number" name="amount" step="0.01" min="0.01" required
-                                   class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                                   placeholder="0.00">
-                        </div>
-                        <button type="submit"
-                                class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-colors whitespace-nowrap">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Enregistrer
-                        </button>
-                    </form>
-                </div>
-
-                {{-- Liste des règlements --}}
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-sm font-semibold text-gray-900">{{ $settlements->count() }} règlement(s)</span>
                 </div>
