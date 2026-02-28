@@ -281,21 +281,48 @@
 
             {{-- ===== RÈGLEMENTS ===== --}}
             <div class="tab-panel panel-reglements">
-                @php
-                    $settlements = $expenses
-                        ->flatMap(fn ($e) => $e->relationLoaded('settlements') ? $e->settlements : collect())
-                        ->sortByDesc('paid_at');
-                @endphp
+                {{-- Form: enregistrer un règlement --}}
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-6">
+                    <h3 class="text-sm font-bold text-gray-900 mb-4">Enregistrer un règlement</h3>
+                    <form method="POST" action="{{ route('settlements.store', $colocation) }}" class="flex flex-wrap items-end gap-3">
+                        @csrf
+                        <div class="flex-1 min-w-[140px]">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1.5">De</label>
+                            <div class="block w-full rounded-xl border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500">
+                                {{ Auth::user()->name }}
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-[140px]">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1.5">À</label>
+                            <select name="receiver_id" required
+                                    class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all bg-white">
+                                <option value="">— Choisir —</option>
+                                @foreach($members as $member)
+                                    @if($member->id !== Auth::id())
+                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="w-32">
+                            <label class="block text-xs font-semibold text-gray-600 mb-1.5">Montant (DH)</label>
+                            <input type="number" name="amount" step="0.01" min="0.01" required
+                                   class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                                   placeholder="0.00">
+                        </div>
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-colors whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Enregistrer
+                        </button>
+                    </form>
+                </div>
 
-                <div class="flex items-center justify-between mb-5">
+                {{-- Liste des règlements --}}
+                <div class="flex items-center justify-between mb-4">
                     <span class="text-sm font-semibold text-gray-900">{{ $settlements->count() }} règlement(s)</span>
-                    <a href="#modal-add-settlement"
-                       class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-colors">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Nouveau règlement
-                    </a>
                 </div>
 
                 @if($settlements->isEmpty())
@@ -305,38 +332,38 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <p class="text-sm font-semibold text-gray-700 mb-1">Aucun règlement enregistré</p>
+                    <p class="text-sm font-semibold text-gray-700 mb-1">Aucun règlement pour le moment</p>
                     <p class="text-xs text-gray-400">Les remboursements apparaîtront ici.</p>
                 </div>
                 @else
-                <div class="overflow-x-auto -mx-6">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b border-gray-100 bg-gray-50/50">
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Membre</th>
-                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Dépense</th>
-                                <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Montant</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($settlements as $settlement)
-                            <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors stagger-item">
-                                <td class="px-6 py-3.5 text-sm text-gray-500 whitespace-nowrap">{{ $settlement->paid_at->format('d/m/Y') }}</td>
-                                <td class="px-6 py-3.5">
-                                    <div class="flex items-center gap-2">
-                                        <x-avatar :name="$settlement->user->name ?? 'U'" size="xs"/>
-                                        <span class="text-sm text-gray-700">{{ $settlement->user->name ?? '—' }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-3.5 text-sm text-gray-500">{{ $settlement->expense->title ?? '—' }}</td>
-                                <td class="px-6 py-3.5 text-right">
-                                    <span class="text-sm font-bold text-emerald-600">{{ number_format($settlement->amount, 2, ',', ' ') }} DH</span>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                <div class="space-y-3">
+                    @foreach($settlements as $settlement)
+                    <div class="flex items-center justify-between px-4 py-3.5 bg-white border border-gray-100 rounded-2xl hover:border-gray-200 transition-colors stagger-item">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4.5 h-4.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-gray-900 truncate">
+                                    {{ $settlement->payer->name }} a payé
+                                    <span class="text-emerald-600">{{ number_format($settlement->amount, 2, ',', ' ') }} DH</span>
+                                    à {{ $settlement->receiver->name }}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-0.5">Le {{ $settlement->paid_at->translatedFormat('d F Y') }}</p>
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ route('settlements.destroy', $settlement) }}"
+                              onsubmit="return confirm('Supprimer ce règlement ?')" class="flex-shrink-0 ml-3">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-xs text-red-400 hover:text-red-600 font-medium transition-colors">
+                                Supprimer
+                            </button>
+                        </form>
+                    </div>
+                    @endforeach
                 </div>
                 @endif
             </div>
@@ -455,52 +482,4 @@
         </div>
     </div>
 
-    {{-- ===== MODAL: Nouveau règlement ===== --}}
-    <div id="modal-add-settlement" class="modal">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="text-base font-bold text-gray-900">Nouveau règlement</h3>
-                <a href="#" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </a>
-            </div>
-            <form method="POST" action="#" class="space-y-4">
-                @csrf
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Dépense concernée</label>
-                    <select name="expense_id" required
-                            class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all bg-white">
-                        <option value="">— Choisir une dépense —</option>
-                        @foreach($expenses as $exp)
-                        <option value="{{ $exp->id }}">{{ $exp->title }} ({{ number_format($exp->amount, 2, ',', ' ') }} DH)</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Montant (DH)</label>
-                        <input type="number" name="amount" step="0.01" min="0.01" required
-                               class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                               placeholder="0.00">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Date du règlement</label>
-                        <input type="date" name="paid_at" required value="{{ date('Y-m-d') }}"
-                               class="block w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
-                    </div>
-                </div>
-                <div class="flex gap-3 pt-1">
-                    <a href="#" class="flex-1 text-center px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm rounded-xl transition-colors">
-                        Annuler
-                    </a>
-                    <button type="submit"
-                            class="flex-1 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm rounded-xl transition-colors">
-                        Enregistrer
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 </x-app-layout>

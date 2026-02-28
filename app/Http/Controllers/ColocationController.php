@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Colocation;
+use App\Models\Settlement;
 use Illuminate\Http\Request;
 
 class ColocationController extends Controller
@@ -69,7 +70,9 @@ class ColocationController extends Controller
             ];
         }
 
-        return view('colocations.show', compact('colocation', 'members', 'expenses', 'categories', 'total', 'fairShare', 'balances'));
+        $settlements = Settlement::where('colocation_id', $colocation->id)->with(['payer', 'receiver'])->latest()->get();
+
+        return view('colocations.show', compact('colocation', 'members', 'expenses', 'categories', 'total', 'fairShare', 'balances', 'settlements'));
     }
     public function edit(Colocation $colocation)
     {

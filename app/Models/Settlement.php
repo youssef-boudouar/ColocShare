@@ -10,8 +10,9 @@ class Settlement extends Model
     protected $fillable = [
         'amount',
         'paid_at',
-        'user_id',
-        'expense_id',
+        'payer_id',
+        'receiver_id',
+        'colocation_id',
     ];
 
     protected function casts(): array
@@ -22,13 +23,18 @@ class Settlement extends Model
         ];
     }
 
-    public function user(): BelongsTo
+    public function payer(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'payer_id');
     }
 
-    public function expense(): BelongsTo
+    public function receiver(): BelongsTo
     {
-        return $this->belongsTo(Expense::class);
+        return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    public function colocation(): BelongsTo
+    {
+        return $this->belongsTo(Colocation::class);
     }
 }
